@@ -1,7 +1,12 @@
 import ms from "ms";
 import fetch from "node-fetch";
 import xml2js from "xml2js";
-import { EP_REGEX, SEASON_REGEX, USER_AGENT } from "./constants.js";
+import {
+	EP_REGEX,
+	SEASON_REGEX,
+	MOVIE_REGEX,
+	USER_AGENT
+} from "./constants.js";
 import { db } from "./db.js";
 import { CrossSeedError } from "./errors.js";
 import {
@@ -128,6 +133,12 @@ function createTorznabSearchQuery(name: string, caps: Caps) {
 			t: "tvsearch",
 			q: cleanseSeparators(match.groups.title),
 			season: extractNumber(match.groups.season),
+		} as const;
+	} else if (mediaType === MediaType.MOVIE && caps.movieSearch) {
+		const match = nameWithoutExtension.match(MOVIE_REGEX);
+		return {
+			t: "search",
+			q: `${cleanseSeparators(match.groups.title)} ${extractNumber(match.groups.year)}`,
 		} as const;
 	} else {
 		return {
